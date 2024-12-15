@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
     console.log('Number dropdown:', document.getElementById('number'));
     console.log('Color dropdown:', document.getElementById('color'));
+    
     // Get selected number and color
     const number = document.getElementById('number').value;
     const color = document.getElementById('color').value;
