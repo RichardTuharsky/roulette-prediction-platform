@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roulette Prediction Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #spin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #spin-form select, #spin-form button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        #spin-list {
+            margin-top: 20px;
+        }
+        #spin-list li {
+            margin: 5px 0;
+        }
+        #prediction-area {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+        }
+        #prediction-area h2 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Roulette Prediction Platform</h1>
+    <div id="app">
+        <!-- Form to add spins -->
+        <form id="spin-form">
+            <label for="number">Select Number (or leave blank for color only):</label>
+            <select id="number">
+                <option value="" selected>-- Choose Number --</option>
+                <option value="0">0</option>
+                <option value="00">00</option>
+                <!-- Numbers 1 to 36 -->
+                <script>
+                    for (let i = 1; i <= 36; i++) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+
+            <label for="color">Select Color (or leave blank for number only):</label>
+            <select id="color">
+                <option value="" selected>-- Choose Color --</option>
+                <option value="Red">Red</option>
+                <option value="Black">Black</option>
+                <option value="Green">Green</option>
+            </select>
+
+            <button type="submit">Add Spin</button>
+        </form>
+
+        <!-- List of spins -->
+        <div>
+            <h2>Spin History</h2>
+            <ul id="spin-list"></ul>
+        </div>
+
+        <!-- Predictions will dynamically appear here -->
+        <div id="prediction-area"></div>
+    </div>
+
+    <script src="src/js/main.js"></script>
+</body>
+</html>
