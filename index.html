@@ -34,6 +34,17 @@
         #prediction-area h2 {
             margin-bottom: 10px;
         }
+
+        #predefined-conditions {
+            border: 1px solid red; /* To visualize the container */
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 50px;
+        }
+        #predefined-conditions div {
+            margin-bottom: 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -46,7 +57,6 @@
                 <option value="" selected>-- Choose Number --</option>
                 <option value="0">0</option>
                 <option value="00">00</option>
-                <!-- Numbers 1 to 36 -->
                 <script>
                     for (let i = 1; i <= 36; i++) {
                         document.write(`<option value="${i}">${i}</option>`);
@@ -71,10 +81,25 @@
             <ul id="spin-list"></ul>
         </div>
 
-        <!-- Predictions will dynamically appear here -->
+        <!-- Predefined Conditions -->
+        <div id="predefined-conditions">
+            <h3>Predefined Conditions</h3>
+            <!-- Dynamically generated condition checkboxes will appear here -->
+        </div>
+
+        <!-- Predictions -->
         <div id="prediction-area"></div>
+
+        <!-- Add Custom Conditions -->
+        <div id="user-condition-form">
+            <h3>Add a Custom Condition</h3>
+            <textarea id="condition-logic" placeholder="Enter condition logic (JavaScript syntax)"></textarea>
+            <input id="condition-description" placeholder="Description of the condition" />
+            <button id="add-condition">Add Condition</button>
+        </div>
     </div>
 
+    <!-- Include JavaScript -->
     <script src="src/js/main.js"></script>
 </body>
 </html>

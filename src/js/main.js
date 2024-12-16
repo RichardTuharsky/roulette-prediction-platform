@@ -1,109 +1,95 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('spin-form');
-  const spinList = document.getElementById('spin-list');
-  const predictionArea = document.createElement('div');
-  predictionArea.id = 'prediction-area';
-  document.getElementById('app').appendChild(predictionArea);
+// Global state
+const conditions = {
+  predefined: [
+    {
+      id: 'colorStreak',
+      name: 'Bet opposite color after a streak',
+      description: 'Bet the opposite color if the last three spins are the same color',
+      logic: (spins) => {
+        const lastThree = spins.slice(-3);
+        if (lastThree.every((spin) => spin.includes('Red'))) return 'Black';
+        if (lastThree.every((spin) => spin.includes('Black'))) return 'Red';
+        return null;
+      },
+    },
+  ],
+  userDefined: [],
+};
 
-  console.log('DOM fully loaded and parsed');
+let spins = [];
 
-
-  let spins = [];
-  let balance = 100; // Starting balance for strategies
-  let martingaleBet = 1; // Initial bet for Martingale
-  let dalembertBet = 1; // Initial bet for D'Alembert
-
-  function updatePredictions() {
-    predictionArea.innerHTML = '<h2>Betting Predictions</h2>';
-
-    // Martingale
-    const lastSpin = spins[spins.length - 1];
-    const martingalePrediction = martingale(lastSpin);
-    const dalembertPrediction = dalembert(lastSpin);
-
-    // Display predictions
-    const martingaleDiv = document.createElement('div');
-    martingaleDiv.innerHTML = `<strong>Martingale:</strong> Next bet: ${martingalePrediction} units`;
-    predictionArea.appendChild(martingaleDiv);
-
-    const dalembertDiv = document.createElement('div');
-    dalembertDiv.innerHTML = `<strong>D'Alembert:</strong> Next bet: ${dalembertPrediction} units`;
-    predictionArea.appendChild(dalembertDiv);
-
-    const colorPatternDiv = document.createElement('div');
-    colorPatternDiv.innerHTML = `<strong>Color Pattern:</strong> Bet on ${
-      colorPattern() ? 'Red' : 'Black'
-    }`;
-    predictionArea.appendChild(colorPatternDiv);
+function populateConditionsUI() {
+  const conditionsDiv = document.getElementById('predefined-conditions');
+  if (!conditionsDiv) {
+      console.error("predefined-conditions div not found!");
+      return;
   }
 
-  form.addEventListener('submit', function (event) {
+  conditionsDiv.innerHTML = ''; // Clear previous content
+
+  conditions.predefined.forEach((condition, index) => {
+      const container = document.createElement('div');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = `toggle-${condition.id}`;
+      checkbox.name = condition.name;
+      checkbox.value = index; // Or any identifier for the condition
+      checkbox.checked = false; // Optionally set to true if you want them all checked by default
+
+      const label = document.createElement('label');
+      label.htmlFor = checkbox.id;
+      label.textContent = condition.name;
+
+      container.appendChild(checkbox);
+      container.appendChild(label);
+      conditionsDiv.appendChild(container);
+  });
+}
+
+function setupConditionCheckboxes() {
+  document.querySelectorAll('input[type="checkbox"][id^="toggle-"]').forEach(checkbox => {
+      checkbox.addEventListener('change', (event) => {
+          const conditionId = event.target.id.split('-')[1]; // Extract the condition ID from the checkbox ID
+          const isChecked = event.target.checked;
+
+          // Here, you would update some data structure or state with this change
+          console.log(`Condition ${conditionId} is now ${isChecked ? 'enabled' : 'disabled'}.`);
+      });
+  });
+}
+
+
+// Function to add a spin result
+function addSpin(number, color) {
+  const spin = `${number} ${color}`.trim();
+  spins.push(spin);
+
+  // Update the spin list
+  const spinList = document.getElementById('spin-list');
+  const li = document.createElement('li');
+  li.textContent = spin;
+  spinList.appendChild(li);
+
+  console.log("Spin added:", spin);
+}
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("DOMContentLoaded fired: Initializing app...");
+  populateConditionsUI();
+  setupConditionCheckboxes();
+
+  // Form submission
+  document.getElementById('spin-form').addEventListener('submit', (event) => {
     event.preventDefault();
-    console.log('Number dropdown:', document.getElementById('number'));
-    console.log('Color dropdown:', document.getElementById('color'));
-    
-    // Get selected number and color
-    const number = document.getElementById('number').value;
-    const color = document.getElementById('color').value;
+    const number = document.getElementById('number').value || '';
+    const color = document.getElementById('color').value || '';
 
-    console.log('Number value:', number);
-    console.log('Color value:', color);
-
-    // Validate input: At least one (number or color) must be selected
     if (!number && !color) {
-      alert('Please select at least a number or a color.');
+      alert("Please select a number or color!");
       return;
     }
 
-    // Combine number and color into a single spin result
-    const spinResult = (number ? number : '') + (color ? ` ${color}` : '');
-
-    // Add the spin result to the spins array
-    spins.push(spinResult.trim());
-
-    // Clear the dropdowns after submission
-    document.getElementById('number').value = '';
-    document.getElementById('color').value = '';
-
-    // Update the spin list in the UI
-    spinList.innerHTML = '';
-    spins.forEach((spin) => {
-      const li = document.createElement('li');
-      li.textContent = spin;
-      spinList.appendChild(li);
-    });
-
-    // Update predictions
-    updatePredictions();
+    addSpin(number, color);
   });
-
-
-  // Betting Strategies
-  function martingale(lastSpin) {
-    if (lastSpin === 'loss') {
-      martingaleBet *= 2;
-    } else {
-      martingaleBet = 1;
-    }
-    return martingaleBet;
-  }
-
-  function dalembert(lastSpin) {
-    if (lastSpin === 'loss') {
-      dalembertBet += 1;
-    } else if (dalembertBet > 1) {
-      dalembertBet -= 1;
-    }
-    return dalembertBet;
-  }
-
-  function colorPattern() {
-    const lastColors = spins.slice(-3);
-    if (lastColors.every((spin) => spin.toLowerCase().includes('red'))) {
-      return 'Black';
-    } else if (lastColors.every((spin) => spin.toLowerCase().includes('black'))) {
-      return 'Red';
-    }
-    return null;
-  }
 });
