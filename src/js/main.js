@@ -24,13 +24,13 @@ const conditions = {
       name: 'Martingale Strategy',
       description: 'Double the bet on the same color after a loss.',
       logic: (spins) => {
-        const lastSpin = spins[spins.length - 1];
-        if (!lastSpin) return null;
+        const lastBet = bets[bets.length - 1];
+        if (!lastBet || lastBet.outcome === 'Win') return null; // Skip if no bet or last bet won
 
-        const [_, color] = lastSpin.split(' ');
-        return color === 'Red' ? 'Red' : 'Black';
+        return lastBet.bet; // Suggest the same bet again (Martingale)
       },
     },
+
 
     {
       id: 'paroli',
@@ -245,21 +245,27 @@ function generatePredictions() {
 
 
 // Function to add a spin result
-function addSpin(number, color) {
-  const spin = `${number} ${color}`.trim();
-  spins.push(spin);
+function addSpin(number, color, bet) {
+  const spinResult = `${number} ${color}`.trim(); // Actual spin result
+  spins.push(spinResult);
 
-  // Update the spin list
+  // Check if bet matches the spin result
+  const betOutcome = (bet && color && bet.toLowerCase() === color.toLowerCase()) ? 'Win' : 'Lose';
+  bets.push({ bet, outcome: betOutcome }); // Store bet and outcome
+
+  console.log("Spin Result:", spinResult);
+  console.log("Your Bet:", bet);
+  console.log("Bet Outcome:", betOutcome);
+
+  // Update the spin list visually
   const spinList = document.getElementById('spin-list');
   const li = document.createElement('li');
-  li.textContent = spin;
+  li.textContent = `Result: ${spinResult} | Bet: ${bet || 'None'} | Outcome: ${betOutcome}`;
   spinList.appendChild(li);
 
-  console.log("Spin added:", spin);
-
-  generatePredictions(); // Generate predictions after adding a spin
-
+  generatePredictions();
 }
+
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {

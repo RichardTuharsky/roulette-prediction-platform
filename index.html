@@ -42,19 +42,17 @@
     <div id="app">
         <!-- Form to add spins -->
         <form id="spin-form">
-            <label for="number">Select Number (or leave blank for color only):</label>
+            <label for="number">Select Number:</label>
             <select id="number">
                 <option value="" selected>-- Choose Number --</option>
-                <option value="0">0</option>
-                <option value="00">00</option>
                 <script>
-                    for (let i = 1; i <= 36; i++) {
+                    for (let i = 0; i <= 36; i++) {
                         document.write(`<option value="${i}">${i}</option>`);
                     }
                 </script>
             </select>
 
-            <label for="color">Select Color (or leave blank for number only):</label>
+            <label for="color">Select Color:</label>
             <select id="color">
                 <option value="" selected>-- Choose Color --</option>
                 <option value="Red">Red</option>
@@ -62,8 +60,16 @@
                 <option value="Green">Green</option>
             </select>
 
+            <label for="bet">Your Bet (Color):</label>
+            <select id="bet">
+                <option value="" selected>-- Place Your Bet --</option>
+                <option value="Red">Red</option>
+                <option value="Black">Black</option>
+            </select>
+
             <button type="submit">Add Spin</button>
         </form>
+
 
         <!-- List of spins -->
         <div>
