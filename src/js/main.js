@@ -1,6 +1,9 @@
 // Global state
 const conditions = {
   predefined: [
+
+
+
     {
       id: 'colorStreak',
       name: 'Bet opposite color after a streak',
@@ -12,39 +15,173 @@ const conditions = {
         return null;
       },
     },
+
+    {
+      id: 'martingale',
+      name: 'Martingale Strategy',
+      description: 'Double the bet on the same color after a loss.',
+      logic: (spins) => {
+        const lastSpin = spins[spins.length - 1];
+        if (!lastSpin) return null;
+
+        const [_, color] = lastSpin.split(' ');
+        return color === 'Red' ? 'Red' : 'Black';
+      },
+    },
+
+    {
+      id: 'paroli',
+      name: 'Reverse Martingale (Paroli)',
+      description: 'Double the bet after a win on the same color.',
+      logic: (spins) => {
+        const lastSpin = spins[spins.length - 1];
+        if (!lastSpin) return null;
+
+        const [_, color] = lastSpin.split(' ');
+        return color === 'Red' ? 'Red' : 'Black';
+      },
+    },
+
+    {
+      id: 'dozens',
+      name: 'Dozens Strategy',
+      description: 'Bet on the dozen that has not appeared in the last 3 spins.',
+      logic: (spins) => {
+        const lastThreeNumbers = spins.slice(-3).map((spin) => parseInt(spin.split(' ')[0]));
+        const dozens = [1, 2, 3];
+        const seenDozens = lastThreeNumbers.map((n) => Math.ceil(n / 12)).filter(Boolean);
+
+        return dozens.find((d) => !seenDozens.includes(d)) || null;
+      },
+    },
+
+    {
+      id: 'columns',
+      name: 'Columns Strategy',
+      description: 'Bet on the column that has not appeared in the last 3 spins.',
+      logic: (spins) => {
+        const lastThreeNumbers = spins.slice(-3).map((spin) => parseInt(spin.split(' ')[0]));
+        const columns = [1, 2, 3];
+        const seenColumns = lastThreeNumbers.map((n) => ((n - 1) % 3) + 1).filter(Boolean);
+
+        return columns.find((c) => !seenColumns.includes(c)) || null;
+      },
+    },
+
+    {
+      id: 'hotNumber',
+      name: 'Hot Numbers',
+      description: 'Bet on the most frequent number in the spin history.',
+      logic: (spins) => {
+        const numberFrequency = spins.reduce((acc, spin) => {
+          const number = spin.split(' ')[0];
+          if (!number) return acc;
+          acc[number] = (acc[number] || 0) + 1;
+          return acc;
+        }, {});
+
+        const mostFrequentNumber = Object.entries(numberFrequency)
+          .sort((a, b) => b[1] - a[1])[0]?.[0];
+
+        return mostFrequentNumber || null;
+      },
+    },
+
+    {
+      id: 'coldNumber',
+      name: 'Cold Numbers',
+      description: 'Bet on the least frequent number in the spin history.',
+      logic: (spins) => {
+        const numberFrequency = spins.reduce((acc, spin) => {
+          const number = spin.split(' ')[0];
+          if (!number) return acc;
+          acc[number] = (acc[number] || 0) + 1;
+          return acc;
+        }, {});
+
+        const leastFrequentNumber = Object.entries(numberFrequency)
+          .sort((a, b) => a[1] - b[1])[0]?.[0];
+
+        return leastFrequentNumber || null;
+      },
+    },
+
+    {
+      id: 'colorAlternation',
+      name: 'Color Alternation',
+      description: 'Predict that the next spin will alternate color.',
+      logic: (spins) => {
+        const lastSpin = spins[spins.length - 1];
+        if (!lastSpin) return null;
+
+        const [_, color] = lastSpin.split(' ');
+        return color === 'Red' ? 'Black' : color === 'Black' ? 'Red' : null;
+      },
+    },
+
+    {
+      id: 'numberRepetition',
+      name: 'Number Repetition',
+      description: 'Bet that the same number will appear twice in a row.',
+      logic: (spins) => {
+        const lastSpin = spins[spins.length - 1];
+        return lastSpin ? lastSpin.split(' ')[0] : null;
+      },
+    }
+
+
+
   ],
   userDefined: [],
 };
 
 let spins = [];
 
+
+
 function populateConditionsUI() {
   const conditionsDiv = document.getElementById('predefined-conditions');
+
   if (!conditionsDiv) {
-      console.error("predefined-conditions div not found!");
-      return;
+    console.error("predefined-conditions div not found!");
+    return;
   }
 
-  conditionsDiv.innerHTML = ''; // Clear previous content
+  console.log("Before clear:", conditionsDiv.innerHTML);
 
+  // Remove all children except <h2>
+  Array.from(conditionsDiv.children).forEach(child => {
+    if (!child.matches('h2')) {
+      conditionsDiv.removeChild(child);
+    }
+  });
+
+  console.log("After clear:", conditionsDiv.innerHTML);
+
+  // Loop through predefined conditions and render checkboxes dynamically
   conditions.predefined.forEach((condition, index) => {
-      const container = document.createElement('div');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = `toggle-${condition.id}`;
-      checkbox.name = condition.name;
-      checkbox.value = index; // Or any identifier for the condition
-      checkbox.checked = false; // Optionally set to true if you want them all checked by default
+    console.log("Condition being rendered:", condition);
 
-      const label = document.createElement('label');
-      label.htmlFor = checkbox.id;
-      label.textContent = condition.name;
+    const container = document.createElement('div');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `toggle-${condition.id}`;
+    checkbox.name = condition.name;
+    checkbox.value = index;
 
-      container.appendChild(checkbox);
-      container.appendChild(label);
-      conditionsDiv.appendChild(container);
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.textContent = condition.name;
+
+    container.appendChild(checkbox);
+    container.appendChild(label);
+    conditionsDiv.appendChild(container);
   });
 }
+
+
+
+
 
 function setupConditionCheckboxes() {
   document.querySelectorAll('input[type="checkbox"][id^="toggle-"]').forEach(checkbox => {
