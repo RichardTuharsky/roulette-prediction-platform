@@ -1,4 +1,7 @@
 // Global state
+
+const enabledConditions = new Set(); // Track which conditions are enabled
+
 const conditions = {
   predefined: [
 
@@ -138,7 +141,6 @@ const conditions = {
 let spins = [];
 
 
-
 function populateConditionsUI() {
   const conditionsDiv = document.getElementById('predefined-conditions');
 
@@ -185,15 +187,61 @@ function populateConditionsUI() {
 
 function setupConditionCheckboxes() {
   document.querySelectorAll('input[type="checkbox"][id^="toggle-"]').forEach(checkbox => {
-      checkbox.addEventListener('change', (event) => {
-          const conditionId = event.target.id.split('-')[1]; // Extract the condition ID from the checkbox ID
-          const isChecked = event.target.checked;
+    checkbox.addEventListener('change', (event) => {
+      const conditionId = event.target.id.split('-')[1];
+      const isChecked = event.target.checked;
 
-          // Here, you would update some data structure or state with this change
-          console.log(`Condition ${conditionId} is now ${isChecked ? 'enabled' : 'disabled'}.`);
-      });
+      if (isChecked) {
+        enabledConditions.add(conditionId); // Enable condition
+      } else {
+        enabledConditions.delete(conditionId); // Disable condition
+      }
+
+      console.log("Enabled Conditions:", Array.from(enabledConditions));
+      generatePredictions();
+    });
   });
 }
+
+function generatePredictions() {
+  const predictionOutput = document.getElementById('prediction-output');
+  predictionOutput.textContent = ''; // Clear previous output
+
+  console.log("Generating predictions...");
+  console.log("Spin history:", spins);
+  console.log("Enabled Conditions:", Array.from(enabledConditions));
+
+  if (spins.length === 0) {
+    predictionOutput.textContent = "Add spins to see predictions.";
+    console.log("No spins available for predictions.");
+    return;
+  }
+
+  let finalPrediction = null;
+
+  conditions.predefined.forEach((condition) => {
+    if (enabledConditions.has(condition.id)) {
+      const prediction = condition.logic(spins);
+
+      console.log(`Condition "${condition.name}" checked:`, prediction);
+
+      if (prediction) {
+        finalPrediction = `${condition.name}: ${prediction}`;
+      }
+    }
+  });
+
+  if (finalPrediction) {
+    predictionOutput.textContent = finalPrediction;
+    console.log("Final Prediction:", finalPrediction);
+  } else {
+    predictionOutput.textContent = "No predictions available based on selected conditions.";
+    console.log("No conditions returned predictions.");
+  }
+}
+
+
+
 
 
 // Function to add a spin result
@@ -208,6 +256,9 @@ function addSpin(number, color) {
   spinList.appendChild(li);
 
   console.log("Spin added:", spin);
+
+  generatePredictions(); // Generate predictions after adding a spin
+
 }
 
 // Initialize the app
