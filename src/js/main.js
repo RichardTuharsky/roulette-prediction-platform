@@ -30,14 +30,131 @@ const conditions = {
   ],
 };
 
-// Function to render conditions dynamically
-function populateConditionsUI() {
-  const conditionsDiv = document.getElementById('predefined-conditions');
-  if (!conditionsDiv) {
-    console.error("predefined-conditions div not found!");
+// Function to handle bet placement
+function placeBet() {
+  const number = document.getElementById('number').value;
+  const color = document.getElementById('bet').value;
+
+  if (!number && !color) {
+    alert("Please place a valid bet (number, color, or both).");
     return;
   }
-  conditionsDiv.innerHTML = ''; // Clear previous conditions
+
+  currentBet = {
+    number: number || null, // Save number or null
+    color: color || null,   // Save color or null
+    timestamp: new Date().toLocaleString(),
+  };
+
+  console.log("My Current Bet:", currentBet);
+
+  document.getElementById('bet-status').textContent =
+    `Current Bet: ${currentBet.number || 'None'} ${currentBet.color || 'None'}`;
+}
+
+// Function to add spin result and log the outcome
+function addSpinResult() {
+  if (!currentBet) {
+    alert("Please place a bet before adding a spin result.");
+    return;
+  }
+
+  const spinNumber = document.getElementById('number').value;
+  const spinColor = document.getElementById('color').value;
+
+  if (!spinNumber || !spinColor) {
+    alert("Please enter a valid spin result (number and color).");
+    return;
+  }
+
+  const spinResult = `${spinNumber} ${spinColor}`;
+  spins.push(spinResult);
+
+  // Determine outcome: check if bet matches spin result
+  const outcome = (
+    (currentBet.number && currentBet.number == spinNumber) ||
+    (currentBet.color && currentBet.color.toLowerCase() === spinColor.toLowerCase())
+  ) ? "Win" : "Lose";
+
+  bets.push({
+    bet: currentBet,
+    result: { number: spinNumber, color: spinColor },
+    outcome,
+    timestamp: new Date().toLocaleString(),
+  });
+
+  console.log("Spin Result Added:", bets[bets.length - 1]);
+
+  // Reset the current bet
+  currentBet = null;
+  document.getElementById('bet-status').textContent = "No bet placed yet.";
+  displayBetHistory();
+  generatePredictions();
+}
+
+// Display spin history
+function displayBetHistory() {
+  const spinList = document.getElementById('spin-list');
+  spinList.innerHTML = ''; // Clear previous entries
+
+  bets.forEach((entry) => {
+    const li = document.createElement('li');
+    li.textContent = `
+      Bet: ${entry.bet.number || 'None'} ${entry.bet.color || 'None'} |
+      Result: ${entry.result.number} ${entry.result.color} |
+      Outcome: ${entry.outcome} | Time: ${entry.timestamp}`;
+    spinList.appendChild(li);
+  });
+}
+
+// Generate predictions based on enabled conditions
+function generatePredictions() {
+  const predictionOutput = document.getElementById('prediction-output');
+  predictionOutput.textContent = 'No predictions available.';
+
+  if (spins.length === 0) {
+    console.log("No spins available for predictions.");
+    return;
+  }
+
+  let prediction = null;
+
+  conditions.predefined.forEach((condition) => {
+    if (enabledConditions.has(condition.id)) {
+      const result = condition.logic(spins);
+      if (result) {
+        prediction = `${condition.name}: ${result}`;
+      }
+    }
+  });
+
+  if (prediction) {
+    predictionOutput.textContent = prediction;
+    console.log("Prediction:", prediction);
+  } else {
+    console.log("No predictions matched the spin history.");
+  }
+}
+
+// Event listeners for bet placement and spin result
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("Initializing Roulette Prediction Platform...");
+  populateConditionsUI();
+  setupConditionCheckboxes();
+
+  // Bet placement
+  document.getElementById('spin-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    placeBet();
+    addSpinResult();
+  });
+});
+
+// Render condition checkboxes dynamically
+function populateConditionsUI() {
+  const conditionsDiv = document.getElementById('predefined-conditions');
+  conditionsDiv.innerHTML = ''; // Clear existing content
+
   conditions.predefined.forEach((condition) => {
     const container = document.createElement('div');
     const checkbox = document.createElement('input');
@@ -55,7 +172,7 @@ function populateConditionsUI() {
   });
 }
 
-// Handle condition selection
+// Setup condition checkbox listeners
 function setupConditionCheckboxes() {
   document.querySelectorAll('input[type="checkbox"][id^="toggle-"]').forEach((checkbox) => {
     checkbox.addEventListener('change', (event) => {
@@ -69,83 +186,3 @@ function setupConditionCheckboxes() {
     });
   });
 }
-
-// Function to finalize bets and add spin results
-function addSpin(number, color, bet) {
-  const spinResult = `${number} ${color}`.trim();
-  spins.push(spinResult);
-
-  const outcome = bet && color && bet.toLowerCase() === color.toLowerCase() ? 'Win' : 'Lose';
-  bets.push({ bet, outcome, timestamp: new Date().toLocaleTimeString() });
-
-  console.log(`Spin Result: ${spinResult}`);
-  console.log(`Your Bet: ${bet} | Outcome: ${outcome}`);
-
-  displayBetHistory();
-  generatePredictions();
-}
-
-// Display history of bets and outcomes
-function displayBetHistory() {
-  const spinList = document.getElementById('spin-list');
-  spinList.innerHTML = '';
-  bets.forEach((bet, index) => {
-    const li = document.createElement('li');
-    const spin = spins[index] || 'Pending';
-    li.textContent = `Bet: ${bet.bet} | Result: ${spin} | Outcome: ${bet.outcome} | Time: ${bet.timestamp}`;
-    spinList.appendChild(li);
-  });
-}
-
-// Generate predictions based on enabled conditions
-function generatePredictions() {
-  const predictionOutput = document.getElementById('prediction-output');
-  predictionOutput.textContent = 'No predictions available.';
-
-  if (spins.length === 0) {
-    console.log("No spins available to predict.");
-    return;
-  }
-
-  let prediction = null;
-  conditions.predefined.forEach((condition) => {
-    if (enabledConditions.has(condition.id)) {
-      const result = condition.logic(spins);
-      if (result) {
-        prediction = `${condition.name}: ${result}`;
-      }
-    }
-  });
-
-  if (prediction) {
-    predictionOutput.textContent = prediction;
-    console.log("Prediction:", prediction);
-  } else {
-    console.log("No predictions matched the current spin history.");
-  }
-}
-
-// Initialize the app
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("Initializing Roulette Prediction Platform...");
-  populateConditionsUI();
-
-  document.getElementById('spin-form').addEventListener('submit', (event) => {
-    event.preventDefault();
-    const number = document.getElementById('number').value || '';
-    const color = document.getElementById('color').value || '';
-    const bet = document.getElementById('bet').value || '';
-
-    if (!color && !number) {
-      alert("Please enter a valid spin result.");
-      return;
-    }
-    if (!bet) {
-      alert("Please place your bet before adding a spin.");
-      return;
-    }
-    addSpin(number, color, bet);
-  });
-
-  setupConditionCheckboxes();
-});

@@ -10,7 +10,11 @@
             margin: 20px;
         }
 
-        #spin-form, #bet-confirmation {
+        h2, h3 {
+            margin-bottom: 10px;
+        }
+
+        #spin-form {
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -20,6 +24,13 @@
         #spin-form select, #spin-form input, #spin-form button {
             padding: 10px;
             font-size: 16px;
+        }
+
+        #bet-confirmation, #spin-result-input {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
         }
 
         #spin-list, #history-section ul {
@@ -34,24 +45,24 @@
             border: 1px solid #ddd;
         }
 
-        #prediction-area, #next-prediction {
+        #predefined-conditions, #next-prediction {
             margin-top: 30px;
             padding: 20px;
             border: 1px solid #ccc;
-            background: #f9f9f9;
-        }
-
-        h2, h3 {
-            margin-bottom: 10px;
+            background-color: #f9f9f9;
         }
     </style>
 </head>
 <body>
     <h1>Roulette Prediction Platform</h1>
+
     <div id="app">
-        <!-- Bet and Spin Form -->
+        <!-- Bet Placement and Spin Form -->
         <form id="spin-form">
-            <label for="number">Select Number (Optional):</label>
+            <h3>Place Your Bet</h3>
+
+            <!-- Bet Input -->
+            <label for="number">Bet on Number (Optional):</label>
             <select id="number">
                 <option value="" selected>-- Choose Number --</option>
                 <script>
@@ -61,7 +72,16 @@
                 </script>
             </select>
 
-            <label for="color">Select Spin Result Color:</label>
+            <label for="bet">Bet on Color (Optional):</label>
+            <select id="bet">
+                <option value="" selected>-- Choose Color --</option>
+                <option value="Red">Red</option>
+                <option value="Black">Black</option>
+            </select>
+
+            <h3>Spin Result</h3>
+            <!-- Spin Result Input -->
+            <label for="color">Spin Result Color:</label>
             <select id="color">
                 <option value="" selected>-- Choose Color --</option>
                 <option value="Red">Red</option>
@@ -69,17 +89,10 @@
                 <option value="Green">Green</option>
             </select>
 
-            <label for="bet">Your Bet (Color):</label>
-            <select id="bet">
-                <option value="" selected>-- Place Your Bet --</option>
-                <option value="Red">Red</option>
-                <option value="Black">Black</option>
-            </select>
-
-            <button type="submit">Add Spin</button>
+            <button type="submit">Submit Bet and Result</button>
         </form>
 
-        <!-- Bet Confirmation Section -->
+        <!-- Bet Confirmation -->
         <div id="bet-confirmation">
             <h3>Current Bet:</h3>
             <p id="bet-status">No bet placed yet.</p>
