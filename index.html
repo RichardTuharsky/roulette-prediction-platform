@@ -9,40 +9,49 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        #spin-form {
+
+        #spin-form, #bet-confirmation {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-bottom: 20px;
         }
-        #spin-form select, #spin-form button {
+
+        #spin-form select, #spin-form input, #spin-form button {
             padding: 10px;
             font-size: 16px;
         }
-        #spin-list {
+
+        #spin-list, #history-section ul {
             margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
         }
-        #spin-list li {
+
+        #spin-list li, #history-section li {
             margin: 5px 0;
+            padding: 5px;
+            border: 1px solid #ddd;
         }
-        #prediction-area {
+
+        #prediction-area, #next-prediction {
             margin-top: 30px;
             padding: 20px;
             border: 1px solid #ccc;
             background: #f9f9f9;
         }
-        #prediction-area h2 {
+
+        h2, h3 {
             margin-bottom: 10px;
         }
-
     </style>
 </head>
 <body>
     <h1>Roulette Prediction Platform</h1>
     <div id="app">
-        <!-- Form to add spins -->
+        <!-- Bet and Spin Form -->
         <form id="spin-form">
-            <label for="number">Select Number:</label>
+            <label for="number">Select Number (Optional):</label>
             <select id="number">
                 <option value="" selected>-- Choose Number --</option>
                 <script>
@@ -52,7 +61,7 @@
                 </script>
             </select>
 
-            <label for="color">Select Color:</label>
+            <label for="color">Select Spin Result Color:</label>
             <select id="color">
                 <option value="" selected>-- Choose Color --</option>
                 <option value="Red">Red</option>
@@ -70,9 +79,14 @@
             <button type="submit">Add Spin</button>
         </form>
 
+        <!-- Bet Confirmation Section -->
+        <div id="bet-confirmation">
+            <h3>Current Bet:</h3>
+            <p id="bet-status">No bet placed yet.</p>
+        </div>
 
-        <!-- List of spins -->
-        <div>
+        <!-- Spin History -->
+        <div id="history-section">
             <h2>Spin History</h2>
             <ul id="spin-list"></ul>
         </div>
@@ -84,16 +98,10 @@
         </div>
 
         <!-- Predictions -->
-       <!-- Predictions Section -->
-            <div id="next-prediction">
-                <h3>Next Prediction:</h3>
-                <p id="prediction-output">No prediction yet. Add spins and enable conditions.</p>
-            </div>
-
-
-
-
-
+        <div id="next-prediction">
+            <h3>Next Prediction:</h3>
+            <p id="prediction-output">No prediction yet. Add spins and enable conditions.</p>
+        </div>
     </div>
 
     <!-- Include JavaScript -->
